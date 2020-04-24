@@ -69,7 +69,7 @@ class Goose {
 
     this.goose.x += this.moveSpeed;
 
-    this.updateLocation(goose.x, goose.y);
+    this.updateLocation(this.goose.x, this.goose.y);
   }
 
   tick() {
