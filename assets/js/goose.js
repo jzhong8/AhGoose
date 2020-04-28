@@ -1,15 +1,18 @@
 class Goose {
   sprites = [];
-  idle;
+  idleRight;
+  idleLeft;
   walkingRight;
   walkingLeft;
   jumpingRight;
   jumpingLeft;
   isFacingRight;
+  isJumping;
 
   moveSpeed = 2;
 
   isFacingRight = true;
+
 
   x = 100;
   y = 0;
@@ -20,13 +23,23 @@ class Goose {
   goose;
 
   constructor() {
-    this.idle = new Sprite({
-      src: './assets/img/idle.png',
+    this.idleRight = new Sprite({
+      src: './assets/img/idle-right.png',
       frameCount: 2,
     });
 
-    this.idle.animation = new AnimationFrame(2, () => this.idle.nextFrame());
-    this.idle.animation.start();
+    this.idleRight.animation = new AnimationFrame(2, () => this.idleRight.nextFrame());
+    this.idleRight.animation.start();
+
+    this.idleLeft = new Sprite({
+      src: './assets/img/idle-left.png',
+      frameCount: 2,
+    });
+
+    this.idleLeft.animation = new AnimationFrame(2, () =>
+      this.idleLeft.nextFrame()
+    );
+    this.idleLeft.animation.start();
 
     this.walkingRight = new Sprite({
       src: './assets/img/walk-right.png',
@@ -68,17 +81,30 @@ class Goose {
     this.jumpingLeft.animation.start();
 
     this.sprites.push(
-      this.idle,
+      this.idleRight,
+      this.idleLeft,
       this.walkingRight,
       this.walkingLeft,
       this.jumpingRight,
       this.jumpingLeft
     );
 
-    this.goose = this.idle;
+    this.goose = this.idleRight;
 
     this.updateLocation(this.x, this.y);
     this.tick();
+  }
+
+  idle(){
+    if (this.xVelocity == 0 && this.yVelocity == 0 && this.isFacingRight == true){
+         this.goose = this.idleRight;
+         this.isFacingRight = true;
+      }
+    else if (this.xVelocity == 0 && this.yVelocity == 0 && this.isFacingRight == false){
+             this.goose = this.idleLeft;
+             this.isFacingRight = false;
+           }
+
   }
 
   walkLeft() {
@@ -100,12 +126,16 @@ class Goose {
   }
 
   jump() {
-    if (this.isFacingRight) {
-      this.goose = this.jumpingRight;
-    } else {
-      this.goose = this.jumpingLeft;
-    }
-    this.yVelocity = -8;
+    if (this.isJumping === false) {
+                                   if (this.isFacingRight) {
+                                     this.goose = this.jumpingRight;
+                                     this.isFacingRight = true;
+                                   } else {
+                                     this.goose = this.jumpingLeft;
+                                     this.isFacingRight = false;
+                                   }
+                                   this.yVelocity = -20 ;
+                                 }
   }
 
   gravity() {
@@ -121,16 +151,22 @@ class Goose {
   tick() {
     this.goose.draw();
     this.goose.x += this.xVelocity;
+    if (this.yVelocity !== 0){
+      this.isJumping = true;
+    } else {
+      this.isJumping = false;
+    }
+    this.idle();
     this.xVelocity = 0;
     this.gravity();
     this.updateLocation(this.goose.x, this.goose.y);
-    console.log(this.goose.y, this.yVelocity);
+    console.log(this.goose.y, this.xVelocity, this.yVelocity, this.isJumping);
   }
 
   updateLocation(x, y) {
     for (let i = 0; i < this.sprites.length; i++) {
       const sprite = this.sprites[i];
-      //console.log(sprite);
+      // console.log(sprite);
 
       sprite.x = x;
       sprite.y = y;
