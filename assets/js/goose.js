@@ -8,38 +8,42 @@ class Goose {
 
   moveSpeed = 10;
 
+  //x = 100;
+  //y = 300;
   x = 100;
-  y = 300;
+  y = 10;
+
+  yVelocity = 0;
 
   goose;
 
   constructor() {
     this.idle = new Sprite({
-      src: './assets/img/idle-border.png',
+      src: './assets/img/idle.png',
       frameCount: 2,
     });
 
-    this.idle.animation = new AnimationFrame(7, () => this.idle.draw());
+    this.idle.animation = new AnimationFrame(2, () => this.idle.nextFrame());
     this.idle.animation.start();
 
     this.walkingRight = new Sprite({
-      src: './assets/img/walking-right.png',
+      src: './assets/img/walk-right.png',
       frameCount: 3,
     });
 
     this.walkingLeft = new Sprite({
-      src: './assets/img/walking-left.png',
+      src: './assets/img/walk-left.png',
       frameCount: 3,
     });
 
     this.jumpingRight = new Sprite({
-      src: './assets/img/jumping-right.png',
-      frameCount: 3,
+      src: './assets/img/jump-right.png',
+      frameCount: 4,
     });
 
     this.jumpingLeft = new Sprite({
-      src: './assets/img/jumping-left.png',
-      frameCount: 3,
+      src: './assets/img/jump-left.png',
+      frameCount: 4,
     });
 
     this.sprites.push(
@@ -56,25 +60,58 @@ class Goose {
     this.tick();
   }
 
-  moveLeft() {
+  walkLeft() {
     this.goose = this.walkingLeft;
     this.goose.x -= this.moveSpeed;
-
-    this.updateLocation(goose.x, goose.y);
   }
 
-  moveRight() {
+  walkRight() {
     this.goose = this.walkingRight;
-    console.log(this.goose.src, this.goose.x, this.moveSpeed);
-
     this.goose.x += this.moveSpeed;
+  }
 
-    this.updateLocation(this.goose.x, this.goose.y);
+  jumpRight() {
+    this.goose = this.jumpingRight;
+    this.goose.y -= 100;
+    this.goose.x += 50;
+  }
+
+  jumpLeft() {
+    this.goose = this.jumpingLeft;
+    this.goose.y += 100;
+    this.goose.x -= 50;
+  }
+
+  move() {
+    if (key.isDown(key.LEFT)) {
+      this.walkLeft();
+    }
+
+    // if (key.isDown(key.DOWN)) {
+    //   this.moveUp();
+    // }
+
+    if (key.isDown(key.RIGHT)) {
+      this.walkRight();
+    }
+  }
+
+  gravity() {
+    this.yVelocity += 1.5;
+
+    if (this.goose.y + this.goose.image.height + 20 >= canvas.height) {
+      this.yVelocity = 0;
+    }
+
+    this.goose.y += this.yVelocity;
   }
 
   tick() {
     this.goose.draw();
-    this.goose.nextFrame();
+
+    this.gravity();
+    this.updateLocation(this.goose.x, this.goose.y);
+    console.log(this.goose.y, this.yVelocity);
   }
 
   updateLocation(x, y) {

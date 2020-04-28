@@ -5,41 +5,27 @@ const ctx = canvas.getContext('2d');
 
 const goose = new Goose();
 
-let blockWood;
-let blockBrick;
-
-function init() {
-  // blockWood = new Sprite({
-  //   src: './assets/img/block-wood.png',
-  //   frameCount: 1,
-  // });
-  // blockWood.onload = () => {
-  //   blockWood.draw();
-  // };
-}
+function init() {}
 
 function tick() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   goose.tick();
-
+  goose.move();
   window.requestAnimationFrame(tick);
 }
 
+// move() {
+//   if (key.isDown(key.LEFT)) {
+//     this.walkingRight();
+//   }
 
+//   if (key.isDown(key.RIGHT)) {
+//     this.walkingLeft();
+//   }
+// }
 
-function onKeyDown(event) {
-  const key = event.key.toLowerCase();
-
-  if (key === 'a') {
-    goose.moveLeft();
-  } else if (key === 'd') {
-    goose.moveRight();
-
-    
-  }
-}
-
-document.addEventListener('keydown', onKeyDown);
+// document.addEventListener('keydown', onKeyDown);
 
 init();
+tick();
