@@ -11,21 +11,28 @@ function tick() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   goose.tick();
-  goose.move();
   window.requestAnimationFrame(tick);
+  move();
+  ctx.beginPath();
+  ctx.moveTo(0, 500);
+  ctx.lineTo(900, 500);
+  ctx.stroke();
+  ctx.strokeStyle = 'red';
 }
 
-// move() {
-//   if (key.isDown(key.LEFT)) {
-//     this.walkingRight();
-//   }
+function move() {
+    if (key.isDown(key.LEFT)) {
+      goose.walkLeft();
+    }
 
-//   if (key.isDown(key.RIGHT)) {
-//     this.walkingLeft();
-//   }
-// }
+    if (key.isDown(key.UP)) {
+      goose.jump();
+    }
 
-// document.addEventListener('keydown', onKeyDown);
+    if (key.isDown(key.RIGHT)) {
+      goose.walkRight();
+    }
+  };
 
 init();
 tick();

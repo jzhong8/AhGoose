@@ -5,14 +5,16 @@ class Goose {
   walkingLeft;
   jumpingRight;
   jumpingLeft;
+  isFacingRight;
 
-  moveSpeed = 10;
+  moveSpeed = 2;
 
-  //x = 100;
-  //y = 300;
+  isFacingRight = true;
+
   x = 100;
-  y = 10;
+  y = 0;
 
+  xVelocity = 0;
   yVelocity = 0;
 
   goose;
@@ -31,20 +33,39 @@ class Goose {
       frameCount: 3,
     });
 
+    this.walkingRight.animation = new AnimationFrame(3, () =>
+      this.walkingRight.nextFrame()
+    );
+    this.walkingRight.animation.start();
+
     this.walkingLeft = new Sprite({
       src: './assets/img/walk-left.png',
       frameCount: 3,
     });
+    this.walkingLeft.animation = new AnimationFrame(3, () =>
+      this.walkingLeft.nextFrame()
+    );
+    this.walkingLeft.animation.start();
 
     this.jumpingRight = new Sprite({
       src: './assets/img/jump-right.png',
       frameCount: 4,
     });
 
+    this.jumpingRight.animation = new AnimationFrame(4, () =>
+      this.jumpingRight.nextFrame()
+    );
+    this.jumpingRight.animation.start();
+
     this.jumpingLeft = new Sprite({
       src: './assets/img/jump-left.png',
       frameCount: 4,
     });
+
+    this.jumpingLeft.animation = new AnimationFrame(4, () =>
+      this.jumpingLeft.nextFrame()
+    );
+    this.jumpingLeft.animation.start();
 
     this.sprites.push(
       this.idle,
@@ -61,54 +82,46 @@ class Goose {
   }
 
   walkLeft() {
-    this.goose = this.walkingLeft;
-    this.goose.x -= this.moveSpeed;
+    if (this.yVelocity === 0) {
+      this.goose = this.walkingLeft;
+    }
+    // this.goose.x -= this.moveSpeed;
+    this.xVelocity = -1 * this.moveSpeed;
+    this.isFacingRight = false;
   }
 
   walkRight() {
-    this.goose = this.walkingRight;
-    this.goose.x += this.moveSpeed;
-  }
-
-  jumpRight() {
-    this.goose = this.jumpingRight;
-    this.goose.y -= 100;
-    this.goose.x += 50;
-  }
-
-  jumpLeft() {
-    this.goose = this.jumpingLeft;
-    this.goose.y += 100;
-    this.goose.x -= 50;
-  }
-
-  move() {
-    if (key.isDown(key.LEFT)) {
-      this.walkLeft();
+    if (this.yVelocity === 0) {
+      this.goose = this.walkingRight;
     }
+    // this.goose.x += this.moveSpeed;
+    this.xVelocity = 1 * this.moveSpeed;
+    this.isFacingRight = true;
+  }
 
-    // if (key.isDown(key.DOWN)) {
-    //   this.moveUp();
-    // }
-
-    if (key.isDown(key.RIGHT)) {
-      this.walkRight();
+  jump() {
+    if (this.isFacingRight) {
+      this.goose = this.jumpingRight;
+    } else {
+      this.goose = this.jumpingLeft;
     }
+    this.yVelocity = -8;
   }
 
   gravity() {
+    this.goose.y += this.yVelocity;
     this.yVelocity += 1.5;
 
-    if (this.goose.y + this.goose.image.height + 20 >= canvas.height) {
+    if (this.goose.y + this.goose.image.height + 100 >= canvas.height) {
+      this.goose.y = 416;
       this.yVelocity = 0;
     }
-
-    this.goose.y += this.yVelocity;
   }
 
   tick() {
     this.goose.draw();
-
+    this.goose.x += this.xVelocity;
+    this.xVelocity = 0;
     this.gravity();
     this.updateLocation(this.goose.x, this.goose.y);
     console.log(this.goose.y, this.yVelocity);
