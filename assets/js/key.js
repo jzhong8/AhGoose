@@ -23,7 +23,7 @@ const key = new Key();
 
 window.addEventListener(
   'keyup',
-  function (event) {
+  (event) => {
     key.onKeyup(event);
   },
   false
@@ -31,7 +31,7 @@ window.addEventListener(
 
 window.addEventListener(
   'keydown',
-  function (event) {
+  (event) => {
     key.onKeydown(event);
   },
   false

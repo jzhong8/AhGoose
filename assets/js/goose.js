@@ -1,26 +1,39 @@
 class Goose {
   sprites = [];
+
+  // Setting
+  moveSpeed = 2;
+
+  // Physics
+  // Position
+  x = 0;
+  y = 0;
+  // Velocity
+  xVelocity = 0;
+  yVelocity = 0;
+
+  // Animation state
+  goose;
   idleRight;
   idleLeft;
   walkingRight;
   walkingLeft;
   jumpingRight;
   jumpingLeft;
-  isFacingRight;
-  isJumping;
 
-  moveSpeed = 2;
-
+  // Physics state
   isFacingRight = true;
+  isJumping = false;
 
+  // Bounding box values
+  gooseRight;
+  gooseTop;
+  gooseLeft;
+  gooseBottom;
 
-  x = 100;
-  y = 0;
-
-  xVelocity = 0;
-  yVelocity = 0;
-
-  goose;
+  // Collision with ground
+  isOnBlock = false;
+  groundYPosition;
 
   constructor() {
     this.idleRight = new Sprite({
@@ -28,7 +41,9 @@ class Goose {
       frameCount: 2,
     });
 
-    this.idleRight.animation = new AnimationFrame(2, () => this.idleRight.nextFrame());
+    this.idleRight.animation = new AnimationFrame(2, () =>
+      this.idleRight.nextFrame()
+    );
     this.idleRight.animation.start();
 
     this.idleLeft = new Sprite({
@@ -46,7 +61,7 @@ class Goose {
       frameCount: 3,
     });
 
-    this.walkingRight.animation = new AnimationFrame(3, () =>
+    this.walkingRight.animation = new AnimationFrame(6, () =>
       this.walkingRight.nextFrame()
     );
     this.walkingRight.animation.start();
@@ -55,7 +70,7 @@ class Goose {
       src: './assets/img/walk-left.png',
       frameCount: 3,
     });
-    this.walkingLeft.animation = new AnimationFrame(3, () =>
+    this.walkingLeft.animation = new AnimationFrame(6, () =>
       this.walkingLeft.nextFrame()
     );
     this.walkingLeft.animation.start();
@@ -90,129 +105,182 @@ class Goose {
     );
 
     this.goose = this.idleRight;
-
-    this.updateLocation(this.x, this.y);
-    this.tick();
-  }
-
-  idle(){
-    if (this.xVelocity == 0 && this.yVelocity == 0 && this.isFacingRight == true){
-         this.goose = this.idleRight;
-         this.isFacingRight = true;
-      }
-    else if (this.xVelocity == 0 && this.yVelocity == 0 && this.isFacingRight == false){
-             this.goose = this.idleLeft;
-             this.isFacingRight = false;
-           }
-
   }
 
   walkLeft() {
-    if (this.yVelocity === 0) {
-      this.goose = this.walkingLeft;
-    }
-    // this.goose.x -= this.moveSpeed;
     this.xVelocity = -1 * this.moveSpeed;
-    this.isFacingRight = false;
   }
 
   walkRight() {
-    if (this.yVelocity === 0) {
-      this.goose = this.walkingRight;
-    }
-    // this.goose.x += this.moveSpeed;
     this.xVelocity = 1 * this.moveSpeed;
-    this.isFacingRight = true;
   }
 
   jump() {
     if (this.isJumping === false) {
-                                   if (this.isFacingRight) {
-                                     this.goose = this.jumpingRight;
-                                     this.isFacingRight = true;
-                                   } else {
-                                     this.goose = this.jumpingLeft;
-                                     this.isFacingRight = false;
-                                   }
-                                   this.yVelocity = -20 ;
-                                 }
+      this.yVelocity = -18.5;
+    }
   }
 
-  gravity() {
+  // Update goose's physics state based on goose's velocity
+  checkPhysicsState() {
+    if (this.yVelocity !== 0) {
+      this.isJumping = true;
+    } else {
+      this.isJumping = false;
+    }
+
+    if (this.xVelocity > 0) {
+      this.isFacingRight = true;
+    } else if (this.xVelocity < 0) {
+      this.isFacingRight = false;
+    }
+  }
+
+  // Update goose's animation state based on goose's velocity and physics state
+  updateAnimationState() {
+    if (
+      this.xVelocity == 0 &&
+      this.yVelocity == 0 &&
+      this.isFacingRight == true
+    ) {
+      this.goose = this.idleRight;
+    } else if (
+      this.xVelocity == 0 &&
+      this.yVelocity == 0 &&
+      this.isFacingRight == false
+    ) {
+      this.goose = this.idleLeft;
+    } else if (
+      this.xVelocity != 0 &&
+      this.isJumping == false &&
+      this.isFacingRight == true
+    ) {
+      this.goose = this.walkingRight;
+    } else if (
+      this.xVelocity != 0 &&
+      this.isJumping == false &&
+      this.isFacingRight == false
+    ) {
+      this.goose = this.walkingLeft;
+    } else if (
+      this.xVelocity != 0 &&
+      this.isJumping == true &&
+      this.isFacingRight == true
+    ) {
+      this.goose = this.jumpingRight;
+    } else if (
+      this.xVelocity != 0 &&
+      this.isJumping == true &&
+      this.isFacingRight == false
+    ) {
+      this.goose = this.jumpingLeft;
+    }
+  }
+
+  solveX(xVelocity, yVelocity) {
+    let finalXVelocity = xVelocity;
+
+    this.gooseRight = this.goose.x + this.goose.width;
+    this.gooseLeft = this.goose.x;
+    this.gooseBottom = this.goose.y + this.goose.height;
+    this.gooseTop = this.goose.y;
+
+    blocks.forEach((block) => {
+      if (
+        this.gooseRight + xVelocity >= block.x &&
+        this.gooseLeft + xVelocity <= block.x + block.width
+      ) {
+        if (this.gooseBottom > block.y) {
+          finalXVelocity = 0;
+        }
+      }
+      return;
+    });
+
+    this.xVelocity = finalXVelocity;
+    this.goose.x += this.xVelocity;
+    this.xVelocity = 0;
+
+    // Set the border
+    if (this.goose.x + this.xVelocity <= this.x) {
+      this.goose.x = 0;
+      this.xVelocity = 0;
+    }
+  }
+
+  solveY(xVelocity, yVelocity) {
+    let finalYVelocity = yVelocity;
+
+    this.gooseRight = this.goose.x + this.goose.width;
+    this.gooseLeft = this.goose.x;
+    this.gooseBottom = this.goose.y + this.goose.height;
+    this.gooseTop = this.goose.y;
+
+    // Check if the goose is above any block
+    let checkIsOnBlock = false;
+
+    for (let i = 0; i < blocks.length; i++) {
+      // If the goose is above a block, set the block as ground position
+      if (
+        this.gooseRight + xVelocity >= blocks[i].x &&
+        this.gooseLeft + xVelocity <= blocks[i].x + blocks[i].width
+      ) {
+        if (this.gooseBottom <= blocks[i].y) {
+          checkIsOnBlock = true;
+          this.groundYPosition = blocks[i].y - this.goose.height;
+        }
+      }
+    }
+
+    // If checkIsOnBlock is true, goose is on top of one of the blocks
+    if (checkIsOnBlock)
+      // flag the isOnBlock to true
+      this.isOnBlock = true;
+    else this.isOnBlock = false;
+
+    // update y velocity
+    this.yVelocity = finalYVelocity;
+    // update y position
     this.goose.y += this.yVelocity;
+    // apply gravity
     this.yVelocity += 1.5;
 
+    // Set the goose's y position to ground position if isOnBlock flag is true and the goose's y position is below the ground position
+    if (this.isOnBlock && this.goose.y >= this.groundYPosition) {
+      this.goose.y = this.groundYPosition;
+      this.yVelocity = 0;
+    }
+
+    // If the goose is below the red line then put it back to the line
     if (this.goose.y + this.goose.image.height + 100 >= canvas.height) {
       this.goose.y = 416;
       this.yVelocity = 0;
     }
   }
 
-  tick() {
-    this.goose.draw();
-    this.goose.x += this.xVelocity;
-    if (this.yVelocity !== 0){
-      this.isJumping = true;
-    } else {
-      this.isJumping = false;
-    }
-    this.idle();
-    this.xVelocity = 0;
-    this.gravity();
-    this.updateLocation(this.goose.x, this.goose.y);
-    console.log(this.goose.y, this.xVelocity, this.yVelocity, this.isJumping);
-  }
-
-  updateLocation(x, y) {
+  updatePosition(x, y) {
     for (let i = 0; i < this.sprites.length; i++) {
       const sprite = this.sprites[i];
-      // console.log(sprite);
-
       sprite.x = x;
       sprite.y = y;
     }
   }
+
+  tick() {
+    // Update goose's physics state based on gooses' velocity
+    this.checkPhysicsState();
+
+    // Update goose's animation state based on goose's velocity and physics state
+    this.updateAnimationState();
+
+    // Apply the velocity values to position
+    this.solveX(this.xVelocity, this.yVelocity);
+    this.solveY(this.xVelocity, this.yVelocity);
+
+    // Update goose's position
+    this.updatePosition(this.goose.x, this.goose.y);
+
+    // Draw the goose sprite
+    this.goose.draw();
+  }
 }
-
-// x = 0;
-// y = 0;
-
-// _image;
-// _imageLocation = './assets/img/walking-right.png';
-// _spriteWidth = 80;
-// _spriteHeight = 80;
-// _spriteFrames = 3;
-// _currentFrame = 0;
-// _spriteX = this._spriteWidth;
-// _walkingAnimation;
-
-// constructor() {
-//   this.walkingRight = new Sprite({
-//     src: './assets/img/walking-right.png',
-//     frameCount: 3,
-//   });
-
-//   // Draw current frame (frame 0)
-//   this.walkingRight.draw();
-
-//   // Go to next frame
-//   this.walkingRight.nextFrame();
-
-//   this._walkingAnimation = new AnimationFrame(10, () => this._update());
-//   this._walkingAnimation.start();
-
-//   this._loadImage();
-// }
-
-// _update() {
-//   console.log('Goose: _update');
-//   this._currentFrame++;
-//   if (this._currentFrame % this._spriteFrames == 0) {
-//     this._currentFrame = 0;
-//   }
-// }
-
-// tick() {
-//   this.draw();
-// }
-//}
