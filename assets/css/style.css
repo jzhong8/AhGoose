@@ -1,19 +1,34 @@
-#game {
-    padding: 0;
-    margin: auto;
-    display: block;
-    width: 900px;
-    height: 600px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-style: double;
-    border-color: black;
-    border-width: 10px;
+.game {
+  padding: 0;
+  margin: auto;
+  display: block;
+  width: 900px;
+  height: 600px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-style: double;
+  border-color: black;
+  border-width: 10px;
 }
 
-#body {
+/* @font-face {
+    font-family: '04b-30';
+    src: url('./assets/font/04b-30.ttf');
+}
 
+.title {
+    font-family: '04b-30';
+} */
+
+.title {
+  padding: 0;
+  margin: auto;
+  display: block;
+  width: 286px;
+}
+
+.body {
 }

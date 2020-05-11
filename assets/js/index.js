@@ -72,6 +72,7 @@ function move() {
 
   if (key.isDown(key.UP)) {
     goose.jump();
+    bounceSound.play();
   }
 
   if (key.isDown(key.RIGHT)) {
@@ -107,5 +108,23 @@ function push() {
     }
   }
 }
+
+introSound = new Audio('assets/audio/josepharaoh99-bouncy-sound.mp3');
+introSound.play();
+
+bgm = new Audio('assets/audio/sky-puzzle.mp3');
+bgm.volume = 0.5;
+bgm.addEventListener(
+  'ended',
+  function () {
+    this.currentTime = 0;
+    this.play();
+  },
+  false
+);
+bgm.play();
+
+bounceSound = new Audio('assets/audio/josepharaoh99-bounce.wav');
+bounceSound.volume = 0.3;
 
 tick();
