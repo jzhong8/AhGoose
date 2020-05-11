@@ -206,6 +206,10 @@ class Goose {
       this.goose.x = 0;
       this.xVelocity = 0;
     }
+    if (this.goose.x + this.goose.width + this.xVelocity >= canvas.width) {
+      this.goose.x = canvas.width - this.goose.width;
+      this.xVelocity = 0;
+    }
   }
 
   solveY(xVelocity, yVelocity) {
@@ -250,10 +254,14 @@ class Goose {
       this.goose.y = this.groundYPosition;
       this.yVelocity = 0;
     }
+        // if (this.isOnBlock && this.goose.y <= 250) {
+        //   this.goose.y = 326 - this.goose.height;
+        //   this.yVelocity = 0;
+        // }
 
     // If the goose is below the red line then put it back to the line
-    if (this.goose.y + this.goose.image.height + 100 >= canvas.height) {
-      this.goose.y = 416;
+    if (this.goose.y + this.goose.image.height + 55 >= canvas.height) {
+      this.goose.y = 461;
       this.yVelocity = 0;
     }
   }
